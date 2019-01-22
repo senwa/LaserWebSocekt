@@ -66,14 +66,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="MyWebSocketServer.exe" size="57232">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="MyWebSocketServer.exe" size="58768">
       <assemblyIdentity name="MyWebSocketServer" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>Jm1vy/V6HI2KnBYIes/GMmyhFN7tCei+/SUNatJ0PG4=</dsig:DigestValue>
+        <dsig:DigestValue>eG7skM34QQWGc2m8sqPGMVBgW38vhO/1dJHRXZq9oJ4=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>

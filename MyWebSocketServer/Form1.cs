@@ -290,15 +290,6 @@ namespace MyWebSocketServer
             
         }
         
-        private void button2_Click(object sender, EventArgs e)
-        {
-            if (!File.Exists(@"D:\1.ezd"))
-            {
-                MessageBox.Show(@"找不到模板文件");
-            }
-            String path = @"D:\1.ezd";
-            MarkJcz.LoadEzdFile(ref path, true);
-        }
 
         private void bottomStateLayout_Paint(object sender, PaintEventArgs e)
         {
@@ -334,6 +325,17 @@ namespace MyWebSocketServer
 
             MessageBox.Show(MarkJcz.SaveEntLibToFile().ToString());
             
+        }
+
+        private void loadTemplateBtn_Click(object sender, EventArgs e)
+        {
+            String path = @"D:\1.ezd";//下面第二个参数为true时可以随便写
+            bool loaded = MarkJcz.LoadEzdFile(ref path, true);//加载模板
+            if (loaded) {
+                MarkJcz.ShowPreviewBmp(printingQcode_pictureBox);
+                path = path.Substring(path.LastIndexOf(@"\") + 1);
+                currentTemplateName_label.Text = path;
+            }
         }
     }
 }
