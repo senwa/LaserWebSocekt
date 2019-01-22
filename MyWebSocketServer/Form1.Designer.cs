@@ -30,22 +30,19 @@
             this.server_state_label = new System.Windows.Forms.Label();
             this.connected_client_count_label = new System.Windows.Forms.Label();
             this.printingQcode_pictureBox = new System.Windows.Forms.PictureBox();
-            this.redLightAndMark_splitContainer = new System.Windows.Forms.SplitContainer();
-            this.redLightBtn = new System.Windows.Forms.Button();
-            this.markBtn = new System.Windows.Forms.Button();
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
             this.currentTemplateName_label = new System.Windows.Forms.Label();
             this.loadTemplateBtn = new System.Windows.Forms.Button();
+            this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
+            this.redLightBtn = new System.Windows.Forms.Button();
+            this.markBtn = new System.Windows.Forms.Button();
             this.tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.waiting_dataGridView)).BeginInit();
             this.bottomStateLayout.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.printingQcode_pictureBox)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.redLightAndMark_splitContainer)).BeginInit();
-            this.redLightAndMark_splitContainer.Panel1.SuspendLayout();
-            this.redLightAndMark_splitContainer.Panel2.SuspendLayout();
-            this.redLightAndMark_splitContainer.SuspendLayout();
             this.tableLayoutPanel3.SuspendLayout();
+            this.tableLayoutPanel4.SuspendLayout();
             this.SuspendLayout();
             // 
             // tableLayoutPanel1
@@ -57,8 +54,8 @@
             this.tableLayoutPanel1.Controls.Add(this.waiting_dataGridView, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.bottomStateLayout, 0, 2);
             this.tableLayoutPanel1.Controls.Add(this.printingQcode_pictureBox, 1, 0);
-            this.tableLayoutPanel1.Controls.Add(this.redLightAndMark_splitContainer, 1, 1);
             this.tableLayoutPanel1.Controls.Add(this.tableLayoutPanel3, 1, 2);
+            this.tableLayoutPanel1.Controls.Add(this.tableLayoutPanel4, 1, 1);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -216,43 +213,6 @@
             this.printingQcode_pictureBox.TabIndex = 6;
             this.printingQcode_pictureBox.TabStop = false;
             // 
-            // redLightAndMark_splitContainer
-            // 
-            this.redLightAndMark_splitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.redLightAndMark_splitContainer.Location = new System.Drawing.Point(416, 138);
-            this.redLightAndMark_splitContainer.Name = "redLightAndMark_splitContainer";
-            // 
-            // redLightAndMark_splitContainer.Panel1
-            // 
-            this.redLightAndMark_splitContainer.Panel1.Controls.Add(this.redLightBtn);
-            // 
-            // redLightAndMark_splitContainer.Panel2
-            // 
-            this.redLightAndMark_splitContainer.Panel2.Controls.Add(this.markBtn);
-            this.redLightAndMark_splitContainer.Size = new System.Drawing.Size(172, 82);
-            this.redLightAndMark_splitContainer.SplitterDistance = 84;
-            this.redLightAndMark_splitContainer.TabIndex = 7;
-            // 
-            // redLightBtn
-            // 
-            this.redLightBtn.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.redLightBtn.Location = new System.Drawing.Point(0, 0);
-            this.redLightBtn.Name = "redLightBtn";
-            this.redLightBtn.Size = new System.Drawing.Size(84, 82);
-            this.redLightBtn.TabIndex = 0;
-            this.redLightBtn.Text = "红光";
-            this.redLightBtn.UseVisualStyleBackColor = true;
-            // 
-            // markBtn
-            // 
-            this.markBtn.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.markBtn.Location = new System.Drawing.Point(0, 0);
-            this.markBtn.Name = "markBtn";
-            this.markBtn.Size = new System.Drawing.Size(84, 82);
-            this.markBtn.TabIndex = 0;
-            this.markBtn.Text = "标刻";
-            this.markBtn.UseVisualStyleBackColor = true;
-            // 
             // tableLayoutPanel3
             // 
             this.tableLayoutPanel3.ColumnCount = 1;
@@ -289,6 +249,44 @@
             this.loadTemplateBtn.UseVisualStyleBackColor = true;
             this.loadTemplateBtn.Click += new System.EventHandler(this.loadTemplateBtn_Click);
             // 
+            // tableLayoutPanel4
+            // 
+            this.tableLayoutPanel4.ColumnCount = 2;
+            this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel4.Controls.Add(this.markBtn, 1, 0);
+            this.tableLayoutPanel4.Controls.Add(this.redLightBtn, 0, 0);
+            this.tableLayoutPanel4.Location = new System.Drawing.Point(416, 138);
+            this.tableLayoutPanel4.Name = "tableLayoutPanel4";
+            this.tableLayoutPanel4.RowCount = 1;
+            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel4.Size = new System.Drawing.Size(172, 82);
+            this.tableLayoutPanel4.TabIndex = 9;
+            // 
+            // redLightBtn
+            // 
+            this.redLightBtn.BackColor = System.Drawing.Color.Yellow;
+            this.redLightBtn.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.redLightBtn.ForeColor = System.Drawing.Color.Red;
+            this.redLightBtn.Location = new System.Drawing.Point(3, 3);
+            this.redLightBtn.Name = "redLightBtn";
+            this.redLightBtn.Size = new System.Drawing.Size(80, 76);
+            this.redLightBtn.TabIndex = 0;
+            this.redLightBtn.Text = "红光";
+            this.redLightBtn.UseVisualStyleBackColor = false;
+            // 
+            // markBtn
+            // 
+            this.markBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(0)))));
+            this.markBtn.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.markBtn.ForeColor = System.Drawing.Color.White;
+            this.markBtn.Location = new System.Drawing.Point(89, 3);
+            this.markBtn.Name = "markBtn";
+            this.markBtn.Size = new System.Drawing.Size(80, 76);
+            this.markBtn.TabIndex = 1;
+            this.markBtn.Text = "标刻";
+            this.markBtn.UseVisualStyleBackColor = false;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
@@ -308,12 +306,9 @@
             this.tableLayoutPanel2.ResumeLayout(false);
             this.tableLayoutPanel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.printingQcode_pictureBox)).EndInit();
-            this.redLightAndMark_splitContainer.Panel1.ResumeLayout(false);
-            this.redLightAndMark_splitContainer.Panel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.redLightAndMark_splitContainer)).EndInit();
-            this.redLightAndMark_splitContainer.ResumeLayout(false);
             this.tableLayoutPanel3.ResumeLayout(false);
             this.tableLayoutPanel3.PerformLayout();
+            this.tableLayoutPanel4.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -332,12 +327,12 @@
         private System.Windows.Forms.Label server_state_label;
         private System.Windows.Forms.Label connected_client_count_label;
         private System.Windows.Forms.PictureBox printingQcode_pictureBox;
-        private System.Windows.Forms.SplitContainer redLightAndMark_splitContainer;
-        private System.Windows.Forms.Button redLightBtn;
-        private System.Windows.Forms.Button markBtn;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel3;
         private System.Windows.Forms.Label currentTemplateName_label;
         private System.Windows.Forms.Button loadTemplateBtn;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel4;
+        private System.Windows.Forms.Button redLightBtn;
+        private System.Windows.Forms.Button markBtn;
     }
 }
 
