@@ -1,0 +1,105 @@
+;/*++
+;
+;; Lmcv2u.INF - INF to install BJJCZ USB LMC Device
+;; Copyright (c) 2001, BJJCZ Corporation,LTD
+;; 北京金橙子科技有限公司
+;; Use Add New Hardware (other devices) from the Control Panel
+;
+;--*/
+
+[Version]
+Signature="$WINDOWS NT$"
+Class=JczProduct
+ClassGuid={9894E04E-1D84-4501-A00F-01519CCD26FE}
+Provider=%BJJCZ%
+DriverVer=06/10/2011,5.0.1636.1
+CatalogFile=lmcv2uX64.cat
+
+
+
+; ================= Class section =====================
+
+[ClassInstall32]
+Addreg=JczClassReg     
+
+[JczClassReg]
+HKR,,,0,%ClassName%
+HKR,,Icon,,-5
+
+[DestinationDirs]
+DefaultDestDir = 12
+
+; ================= Device section =====================
+
+[Manufacturer]
+%BJJCZ%=BJJCZ,ntamd64
+
+; For Windows Server 2003 and later
+[BJJCZ.ntamd64]
+%JCZUSBDEV%=Install_LMC, USB\VID_9588&PID_9980
+%USBLMC%=Install_LMC, USB\VID_9588&PID_9899
+
+[Install_LMC.NT]
+CopyFiles=LMCUSB_Files_Driver
+AddReg=JDUSB_NT_AddReg
+
+[Install_LMC.NT.Services]
+Addservice = Lmcv2u, 0x00000002, Lmcv2u_AddService
+
+[Lmcv2u_AddService]
+; SvcDesc very important! must use differetn key name for different driver name!
+DisplayName    = %SvcDesc%
+ServiceType    = 1                  ; SERVICE_KERNEL_DRIVER
+StartType      = 3                  ; SERVICE_DEMAND_START
+ErrorControl   = 1                  ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %10%\System32\Drivers\Lmcv2u.sys
+LoadOrderGroup = Base
+;AddReg         = usbsamp.AddReg
+
+[JDUSB_NT_AddReg]
+HKR,"Parameters","MaximumTransferSize",0x10001,65536
+HKR,"Parameters","DebugLevel",0x10001,2
+
+[LMCUSB_Files_Driver]
+Lmcv2u.sys
+
+[SourceDisksNames]
+1=%InstallDisk%,,,
+
+[SourceDisksFiles]
+Lmcv2u.sys = 1
+
+;-------------- WDF Coinstaller installation
+[DestinationDirs]
+CoInstaller_CopyFiles = 11
+
+[Install_LMC.NT.CoInstallers]
+AddReg=CoInstaller_AddReg
+CopyFiles=CoInstaller_CopyFiles
+
+[CoInstaller_CopyFiles]
+WdfCoInstaller01009.dll
+
+[SourceDisksFiles]
+WdfCoInstaller01009.dll=1 ; make sure the number matches with SourceDisksNames
+
+[CoInstaller_AddReg]
+HKR,,CoInstallers32,0x00010000, "WdfCoInstaller01009.dll,WdfCoInstaller"
+
+[Install_LMC.NT.Wdf]
+KmdfService = Lmcv2u, Lmcv2u_wdfsect
+
+[Lmcv2u_wdfsect]
+KmdfLibraryVersion = 1.9
+
+;---------------------------------------------------------------;
+
+[Strings]
+BJJCZ     = "BeiJing JCZ Co.,Ltd "
+ClassName = "BJJCZ Device"
+JCZUSBDEV ="JCZ USB Loader"
+USBLMC    ="Laser Mark Control Board V2 [USB]"
+DEVICON   ="System\CurrentControlSet\Services\Class\Laser Device"
+SvcDesc   ="LMCV2U Service"
+;InstallDisk = "BJJCZ USB LMC board Install"
+
