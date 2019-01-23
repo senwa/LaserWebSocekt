@@ -30,3 +30,4 @@ F:\csharpprojects\MyWebSocketServer\MyWebSocketServer\obj\Debug\MyWebSocketServe
 F:\csharpprojects\MyWebSocketServer\MyWebSocketServer\obj\Debug\MyWebSocketServer.csproj.CopyComplete
 F:\csharpprojects\MyWebSocketServer\MyWebSocketServer\obj\Debug\MyWebSocketServer.exe
 F:\csharpprojects\MyWebSocketServer\MyWebSocketServer\obj\Debug\MyWebSocketServer.pdb
+F:\csharpprojects\MyWebSocketServer\MyWebSocketServer\obj\Debug\MyWebSocketServer.csprojResolveAssemblyReference.cache

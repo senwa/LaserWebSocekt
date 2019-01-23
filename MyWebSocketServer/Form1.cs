@@ -32,9 +32,10 @@ namespace MyWebSocketServer
 
         private UpdateServerState UpdateServerStateDelegate;
         private UpdateConnectedState UpdateConnectedStateDelegate;
-    
-        
 
+
+        private Boolean isRedLightStart = false;
+        private Boolean isMarking = false;
         private Thread consumer;
         private Thread serverThread;
         public DataTable dt;
@@ -86,9 +87,9 @@ namespace MyWebSocketServer
             //实例化委托
             //webSocketService.updateTxtDelegate = new UpdatePrinting(UpdatePrintingMethod);
 
-            //创建消费者线程
-            consumer = new Thread(new ThreadStart(markEzdFunc));
-            consumer.Start();
+            //创建消费者线程(不用,现在采用手工点击事件处理标刻)
+            //consumer = new Thread(new ThreadStart(markEzdFunc));
+            //consumer.Start();
         }
 
         //创建服务器
@@ -119,9 +120,8 @@ namespace MyWebSocketServer
                                     this.waiting_dataGridView.BeginInvoke(UpdatePrintingDelegate);
                                     sock.Send(item.PrintCode + "已加入到打印队列");
                                 }
-                                          
-                            }
-                                    
+                        }
+
                     }
 
                     Console.WriteLine("服务线程..." + Thread.CurrentThread.GetHashCode());
@@ -159,45 +159,52 @@ namespace MyWebSocketServer
         //执行激光打码
         public void markEzdFunc()
         {
-            Console.WriteLine(Thread.CurrentThread.GetHashCode() + "#####markEzdFunc1");
-
-            Console.WriteLine(Thread.CurrentThread.GetHashCode() + "#####markEzdFunc2" + " XXXXXXXXXXXXXXX  " + dt.Rows.Count);
-            while (true)
+            string markNum = null;
+            if (dt.Rows.Count > 0)
             {
-                string markNum = null;
-                lock (this.waiting_dataGridView)
+                markNum = printing_text_label.Text;
+
+                if (markNum != null&& markNum.Trim().Length!=0)
                 {
+                    //处理打码操作
+                    Thread.Sleep(200);
 
-                    if (dt.Rows.Count > 0)
+                    isMarking = true;
+                    markBtn.Text = "停止标刻";
+                    markBtn.BackColor = System.Drawing.Color.Khaki;
+                    this.server_state_label.BeginInvoke(UpdateServerStateDelegate, "正在标刻:"+ markNum);
+
+                    bool res = MarkJcz.Mark();//此函数一直等待设备加工完毕后才返回
+                    Thread.Sleep(100);
+                    stopMark();
+                    if (res)
                     {
-                        markNum = dt.Rows[0]["编码"] as string;
-
-                        if (markNum != null)
+                        //标刻成功完成
+                        this.server_state_label.BeginInvoke(UpdateServerStateDelegate, markNum + "标刻完成");
+                        DialogResult dr = MessageBox.Show("标刻成功,是否需要重新标刻\n"+ markNum + "?", "标刻完成", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
+                        if (dr == DialogResult.OK)
                         {
-                            this.waiting_dataGridView.BeginInvoke(UpdatePrintingDelegate);//刷新正在排队等待打印的字符串的列表
-                            Console.WriteLine(Thread.CurrentThread.GetHashCode() + "#####打码###" + markNum);
-                            this.printing_text_label.BeginInvoke(UpdatePrintingTextLabelDelegate, markNum);//label上显示正在打码的数据
-                                                                                                           //模仿处理打码操作
-                            Thread.Sleep(1000);
-                            var re = MarkJcz.MarkEnt(markNum);
-                            Console.WriteLine("是否成功打码:" + re + " " + markNum);
-                            if (!re) {//打码失败
-                                return;
-                            }
-                            MessageBox.Show(MarkJcz.GetLastError());
-                            this.waiting_dataGridView.BeginInvoke(UpdatePrintingDelegate);//刷新正在排队等待打印的字符串的列表
+                            return;
                         }
-
                         dt.Rows.RemoveAt(0);
-                        Monitor.PulseAll(this.waiting_dataGridView);
                     }
                     else
                     {
-                        this.printing_text_label.BeginInvoke(UpdatePrintingTextLabelDelegate, "");
-                        Console.WriteLine(Thread.CurrentThread.GetHashCode() + "#####打码等待");
-                        Monitor.Wait(this.waiting_dataGridView);
-                    }
+                        MessageBox.Show("标刻失败");
+                        this.server_state_label.BeginInvoke(UpdateServerStateDelegate, markNum + "标刻失败");
+                        MessageBox.Show(MarkJcz.GetLastError());
+                        return;
+                    }  
+                    this.waiting_dataGridView.BeginInvoke(UpdatePrintingDelegate);//刷新正在排队等待打印的字符串的列表
                 }
+                
+                //Monitor.PulseAll(this.waiting_dataGridView);
+            }
+            else
+            {
+                MessageBox.Show("没有要标刻的数据");
+                this.printing_text_label.BeginInvoke(UpdatePrintingTextLabelDelegate, "");
+                //Monitor.Wait(this.waiting_dataGridView);
             }
         }
 
@@ -229,12 +236,29 @@ namespace MyWebSocketServer
                 }
                 waiting_dataGridView.Refresh();
                 waiting_dataGridView.Update();
-                Console.WriteLine(Thread.CurrentThread.GetHashCode() + "---" + "刷新到UI grid中");       
+            //如果printing_text_label上内容为空,把第一行rows[0]放到里面打码
+                string markNum = dt.Rows.Count>0?dt.Rows[0]["编码"] as string:"";
+                if (printing_text_label.Text==null|| printing_text_label.Text.Trim().Length==0|| printing_text_label.Text!= markNum)
+                {
+                    if (dt.Rows.Count > 0)
+                    {
+                        dt.Rows[0]["状态"] = "正在标刻";
+                    }                    
+                    this.printing_text_label.BeginInvoke(UpdatePrintingTextLabelDelegate, markNum);//label上显示正在打码的数据
+                }
+
+            //Console.WriteLine(Thread.CurrentThread.GetHashCode() + "---" + "刷新到UI grid中");       
         }
 
-        //更新显示正在打印的编码
+        //更新显示正在打印的编码,同时更新二维码信息
         public void UpdateLabel(string txt) {
             this.printing_text_label.Text = txt;
+
+            if (printing_text_label.Text != null && printing_text_label.Text.Trim().Length != 0)
+            {
+                MarkJcz.ChangeTextByName("no", printing_text_label.Text.Trim());//模板中的变量名字必须是no
+                MarkJcz.ShowPreviewBmp(printingQcode_pictureBox);
+            }
         }
         
         protected override void Dispose(bool disposing)
@@ -244,8 +268,8 @@ namespace MyWebSocketServer
                 components.Dispose();
             }
 
-            consumer.Abort();
-            consumer = null;
+            //consumer.Abort();
+            //consumer = null;
             server.Stop();
             server.Dispose();
 
@@ -275,41 +299,7 @@ namespace MyWebSocketServer
         {
             MarkJcz.Close();
         }
-        private Boolean isStart = false;
-        private void button1_Click(object sender, EventArgs e)
-        {
-            if (!isStart)
-            {
-                MarkJcz.StartRed();
-                isStart = true;
-            }
-            else {
-                MarkJcz.StopRed();
-                isStart = false;
-            }
-            
-        }
         
-
-        private void bottomStateLayout_Paint(object sender, PaintEventArgs e)
-        {
-
-        }
-        private Boolean isMarking = false;
-        private void button3_Click(object sender, EventArgs e)
-        {
-            //mark
-            if (!isMarking)
-            {
-                MessageBox.Show(MarkJcz.Mark().ToString());
-                //MessageBox.Show(MarkJcz.MarkEnt("12333333").ToString());
-                isMarking = true;
-            }
-            else {
-                MarkJcz.StopMark();
-                isMarking = false;
-            }
-        }
 
         private void button4_Click(object sender, EventArgs e)
         {
@@ -331,11 +321,124 @@ namespace MyWebSocketServer
         {
             String path = @"D:\1.ezd";//下面第二个参数为true时可以随便写
             bool loaded = MarkJcz.LoadEzdFile(ref path, true);//加载模板
-            if (loaded) {
+            if (loaded)
+            {
+                //如果printing_text_label上有当前需要打印的内容,那么直接替换模板二维码中的内容
+                if (printing_text_label.Text != null && printing_text_label.Text.Trim().Length != 0)
+                {
+                    MarkJcz.ChangeTextByName("no", printing_text_label.Text.Trim());//模板中的变量名字必须是no
+                }
+
                 MarkJcz.ShowPreviewBmp(printingQcode_pictureBox);
                 path = path.Substring(path.LastIndexOf(@"\") + 1);
                 currentTemplateName_label.Text = path;
+
+                //加载完模板停止红光和标刻
+                stopMark();
+                stopRedLight();
+
+                this.server_state_label.BeginInvoke(UpdateServerStateDelegate, "加载模板完成");
             }
+            else
+            {
+                this.server_state_label.BeginInvoke(UpdateServerStateDelegate, "加载模板失败");
+            }
+        }
+
+        private void redLightBtn_Click(object sender, EventArgs e)
+        {     
+            if (!isRedLightStart)
+            {
+                //必须已经加载模板
+                if (currentTemplateName_label.Text == null || currentTemplateName_label.Text.Trim().Length == 0)
+                {
+                    MessageBox.Show("请先加载模板");
+                    return;
+                }
+
+                bool res = MarkJcz.StartRed();//开启红光
+                if (res)
+                {
+                    isRedLightStart = true;
+                    redLightBtn.Text = "停止红光";
+                    redLightBtn.BackColor = System.Drawing.Color.Khaki;
+                    this.server_state_label.BeginInvoke(UpdateServerStateDelegate, "红光指示中...");
+                }
+                else
+                {
+                    MessageBox.Show("启动红光失败");
+                    this.server_state_label.BeginInvoke(UpdateServerStateDelegate, "红光启动失败");
+                }
+               
+            }
+            else
+            {
+                stopRedLight();
+            }
+        }
+
+        private void stopRedLight()
+        {
+            if (isRedLightStart)
+            {
+                MarkJcz.StopRed();//关闭红光
+                isRedLightStart = false;
+                redLightBtn.Text = "红光";
+                redLightBtn.BackColor = System.Drawing.Color.Yellow;
+                this.server_state_label.BeginInvoke(UpdateServerStateDelegate, "红光已关闭");
+            }
+        }
+
+        private void stopMark()
+        {
+            if (isMarking)
+            {
+                //停止标刻
+                bool res = MarkJcz.StopMark();
+                if (res)
+                {
+                    isMarking = false;
+                    markBtn.Text = "标刻";
+                    markBtn.BackColor = System.Drawing.Color.Green;
+                    this.server_state_label.BeginInvoke(UpdateServerStateDelegate, "标刻已停止");
+                }
+                else
+                {
+                    MessageBox.Show("停止标刻失败");
+                    this.server_state_label.BeginInvoke(UpdateServerStateDelegate, "标刻停止失败");
+                }
+            }
+        }
+
+        private void markBtn_Click(object sender, EventArgs e)
+        {
+            if (!isMarking)
+            {
+                //标刻前必须已经加载模板
+                if (currentTemplateName_label.Text==null|| currentTemplateName_label.Text.Trim().Length==0)
+                {
+                    MessageBox.Show("请先加载模板");
+                    return;
+                }
+                //标刻前必须停止红光
+                stopRedLight();
+
+                //标刻
+                markEzdFunc();
+            
+            }
+            else
+            {
+                stopMark();
+            }
+        }
+
+        private void deleteGridItem(object sender, EventArgs e)
+        {
+            int curIndex = waiting_dataGridView.CurrentRow.Index;
+            this.dt.Rows.RemoveAt(curIndex);
+            //更新状态
+            this.waiting_dataGridView.BeginInvoke(UpdatePrintingDelegate);
         }
     }
 }

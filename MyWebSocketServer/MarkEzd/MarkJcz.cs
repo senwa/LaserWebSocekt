@@ -274,7 +274,6 @@ namespace JczMark
             mEnableRed = true;
             mThreadRedLight = new Thread(RedLight);
             mThreadRedLight.Start();
-            MessageBox.Show(@"启动红光");
             return true;
         }
 
@@ -289,7 +288,7 @@ namespace JczMark
                     {
                         break;
                     }
-                    Thread.Sleep(100);
+                    Thread.Sleep(100);//这里会出现闪动
                 }
             }
         }

@@ -66,14 +66,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="MyWebSocketServer.exe" size="58768">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="MyWebSocketServer.exe" size="62352">
       <assemblyIdentity name="MyWebSocketServer" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>pfDNIobQK48eO6I24eYZ84rT9lufXdtLlrkI74ADX9I=</dsig:DigestValue>
+        <dsig:DigestValue>y2oCRBqu4yk9p1/zobncgnFkkvZwdfEKkNSL0TgPgzs=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
@@ -156,6 +156,15 @@
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
       <dsig:DigestValue>924mlyskR+Qn2qW+qm41lfcFYdfksbS5JLU1a6sOV2w=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="res\logo.ico" size="1150">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>JZNzC6yErI50Ctzx2GaLSP5C2+ykiz3I/vn6bze+Atk=</dsig:DigestValue>
     </hash>
   </file>
   <file name="res\received.png" size="548">
