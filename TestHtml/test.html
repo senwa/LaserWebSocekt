@@ -1,0 +1,37 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Socket to me</title>
+    <script src="jquery.min.js"></script>
+    <script src="test.js"></script>
+
+    <style type="text/css">
+        body {
+            font-family: sans-serif;
+            font-size: 1.1em;
+        }
+
+        form > div, .status-container, form {
+            padding: .5em 1em 1em;
+        }
+
+        .status-container {
+            background: #F5F5F5;
+            border: 1px solid #EEE;
+        }
+		#message{
+			width:400px;
+		}
+    </style>
+</head>
+<body>
+    <h1>ERP网页连接C#webSocketServer中间代理测试</h1>
+
+    
+    <label>消息:<input id="message" /></label>
+	<input type="button" id="sendBtn" value="发送"/>
+    <div class="status-container">
+        <div id="status"></div>
+    </div>
+</body>
+</html>
