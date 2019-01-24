@@ -1,0 +1,218 @@
+;; JCZLMC.INF - INF to install BJJCZ Laser Device
+;; Copyright (c) 2011, BJJCZ Technology CO. LTD
+;; 北京金橙子科技有限公司
+;; Use Add New Hardware (other devices) from the Control Panel
+
+
+[Version]
+Signature=$CHICAGO$
+Provider=%BJJCZ%
+DriverVer=06/17/2011,1.0.0.1
+Class=JczProduct
+ClassGuid={9894E04E-1D84-4501-A00F-01519CCD26FE}
+CatalogFile=lmcDrv.cat
+
+; ================= Class section =====================
+
+[ClassInstall32]
+Addreg=JczClassReg     
+
+[JczClassReg]
+HKR,,,0,%DeviceClassName%
+HKR,,Icon,,-5
+
+[DestinationDirs]
+DefaultDestDir = 12
+
+;--------- Manufacturer and Models Sections ----------------------------------
+
+[Manufacturer]
+%BJJCZ%=DeviceList
+
+[SourceDisksNames]
+1=%InstallDisk%,,1
+
+[DeviceList]
+;PCI
+%PCILMC_DEV%=Install_PCI_LMC,PCI\VEN_10B5&DEV_5201&SUBSYS_0001CECE
+
+;USB
+%JCZUSB1%=Install_USB_LMC, USB\VID_9588&PID_9990
+%USBLMC1%=Install_USB_LMC, USB\VID_9588&PID_9999
+
+;USB2
+%JCZUSB2%=Install_USB2010_LMC, USB\VID_9588&PID_9980
+%USBLMC2%=Install_USB2010_LMC, USB\VID_9588&PID_9899
+
+
+[Install_PCI_LMC]
+DriverVer=06/17/2011,7.0.0.0
+CopyFiles=PCILMC.copy
+AddReg=PCILMC_9x_registry
+
+[PCILMC_9x_registry]
+HKR,,DevLoader,,*ntkern
+HKR,,NTMPDriver,,lmc.sys
+HKR, "Parameters", "BreakOnEntry", 0x00010001, 0
+
+[Install_PCI_LMC.NT]
+DriverVer=06/17/2011,7.0.0.0
+CopyFiles=PCILMC.copy
+AddReg=PCILMC_NT_registry
+
+[Install_PCI_LMC.NT.Services]
+AddService=PCI_LMC,2,PCI_Lmc1.Service
+
+[Install_PCI_LMC.NTx86]
+DriverVer=06/17/2011,7.0.0.0
+CopyFiles=PCILMC.copy
+AddReg=PCILMC_NT_registry
+
+[Install_PCI_LMC.NTx86.Services]
+AddService=PCI_LMC,2,PCI_Lmc1.Service
+
+[PCI_Lmc1.Service]
+DisplayName=%BJJCZSrvDesc_PCI%
+ServiceType=1
+StartType=3
+ErrorControl=1
+ServiceBinary=%10%\system32\drivers\lmc.sys
+
+[PCILMC_NT_registry]
+HKLM, "System\CurrentControlSet\Services\LMC1\Parameters",\
+	"BreakOnEntry", 0x00010001, 0
+
+[PCILMC.copy]
+lmc.sys,,,2
+
+[ControlFlags]
+
+[SourceDisksFiles]
+lmc.sys=1
+
+[DestinationDirs]
+DefaultDestDir=11
+Lmc1.copy=10,System32\Drivers
+
+;/////////////////////////////////////////////////////////////////////
+[Install_USB_LMC.NT]
+DriverVer=06/17/2011,7.0.0.0
+CopyFiles=LMCUSB_Files_Driver
+AddReg=BJJCZUSB_NT_AddReg
+
+[Install_USB_LMC.NT.Services]
+Addservice = LMCUSB, 0x00000002, BJJCZUSB_AddService
+
+[BJJCZUSB_NT_AddReg]
+HKLM, "System\CurrentControlSet\Services\JDUSB\Parameters",\
+	"BreakOnEntry", 0x00010001, 0
+HKLM, "System\CurrentControlSet\Services\JDUSB\Parameters",\
+	"Control", 0x00010001, 0
+
+[BJJCZUSB_AddService]
+DisplayName    = %BJJCZSrvDesc_USB%
+ServiceType    = 1                  ; SERVICE_KERNEL_DRIVER
+StartType      = 2                  ; SERVICE_DEMAND_START
+ErrorControl   = 1                  ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %10%\System32\Drivers\LMCUSB.sys
+LoadOrderGroup = Base
+
+
+; --------- Files (common) -------------
+
+[LMCUSB_Files_Driver]
+LMCUSB.sys
+
+;--------- SourceDiskNames and SourceDiskFiles Section -----------------------
+
+
+[SourceDisksFiles]
+LMCUSB.sys = 1,,
+
+;--------- DestinationDirs Section -------------------------------------------
+
+[DestinationDirs]
+LMCUSB_Files_Driver = 10,System32\Drivers
+
+;//////////////////////////////////////////////////////////////*
+[Install_USB2010_LMC.NT]
+DriverVer=06/17/2011,7.0.0.0
+CopyFiles=LMCUSB2010_Files_Driver
+AddReg=BJJCZUSB2010_NT_AddReg
+
+;[Install_USB2010_LMC.NTx86]
+;DriverVer=12/20/2010,6.1.0.0
+;CopyFiles=LMCUSB2010_Files_Driver
+;AddReg=BJJCZUSB2010_NT_AddReg
+
+[Install_USB2010_LMC.NT.Services]
+Addservice = Lmcv2u, 0x00000002, BJJCZUSB2010_AddService
+
+;[Install_USB2010_LMC.NTx86.Services]
+;Addservice = Lmcv2u, 0x00000002, BJJCZUSB2010_AddService
+
+[BJJCZUSB2010_NT_AddReg]
+HKR,"Parameters","MaximumTransferSize",0x10001,65536
+HKR,"Parameters","DebugLevel",0x10001,2
+
+[BJJCZUSB2010_AddService]
+; SvcDesc very important! must use differetn key name for different driver name!
+DisplayName    = %BJJCZSrvDesc_USB2010%
+ServiceType    = 1                  ; SERVICE_KERNEL_DRIVER
+StartType      = 3                  ; SERVICE_DEMAND_START
+ErrorControl   = 1                  ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %10%\System32\Drivers\Lmcv2u.sys
+LoadOrderGroup = Base
+;AddReg         = usbsamp.AddReg
+
+[LMCUSB2010_Files_Driver]
+Lmcv2u.sys
+
+[SourceDisksFiles]
+Lmcv2u.sys = 1
+
+;-------------- WDF Coinstaller installation
+[DestinationDirs]
+CoInstaller_CopyFiles = 11
+
+[Install_USB2010_LMC.NT.CoInstallers]
+AddReg=CoInstaller_AddReg
+CopyFiles=CoInstaller_CopyFiles
+
+[CoInstaller_CopyFiles]
+WdfCoInstaller01009.dll
+
+[SourceDisksFiles]
+WdfCoInstaller01009.dll=1 ; make sure the number matches with SourceDisksNames
+
+[CoInstaller_AddReg]
+HKR,,CoInstallers32,0x00010000, "WdfCoInstaller01009.dll,WdfCoInstaller"
+
+[Install_USB2010_LMC.NT.Wdf]
+KmdfService = Lmcv2u, Lmcv2u_wdfsect
+
+[Lmcv2u_wdfsect]
+KmdfLibraryVersion = 1.9
+
+;/////////////////////////////////////////////////////////////////////////////
+
+[Strings]
+BJJCZ = "BeiJing JCZ Technology CO., LTD "
+DeviceClassName="BJJCZ Device"
+InstallDisk = "BJJCZ Laser Device Install" 
+DEVICON   ="System\CurrentControlSet\Services\Class\Laser Device"
+BJJCZSrvDesc="BJJCZ Device"
+
+;PCI
+PCILMC_DEV  = "Laser Mark Control Board [PCI]"
+BJJCZSrvDesc_PCI = "BJJCZ LMC PCI"
+
+;USB
+JCZUSB1="JCZ USBLMC V1 Loader"
+USBLMC1="Laser Mark Control Board V1 [USB]"
+BJJCZSrvDesc_USB = "BJJCZ LMC USB"
+
+;USb2
+JCZUSB2 = "JCZ USBLMC V2 Loader"
+USBLMC2 = "Laser Mark Control Board V2 [USB]"
+BJJCZSrvDesc_USB2010 ="BJJCZ LMC USB2010"

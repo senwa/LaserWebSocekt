@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace MyWebSocketServer.json
 {
-    class MsgList
+    public class MsgList
     {
-        public List<Msg> msgs { get; set; }
+        public List<Msg> msgs {get; set; }
     }
 }

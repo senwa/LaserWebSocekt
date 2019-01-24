@@ -20,14 +20,14 @@ namespace MyWebSocketServer
     {
         //声明委托,更新显示正在打印的字符
 
-        public delegate void UpdatePrinting();
+        public delegate void UpdatePrinting(MsgList msgJson,WebSocketSession sock);
         public delegate void UpdatePrintingTextLabel(String text);
         public delegate void UpdateServerState(String msg);
         public delegate void UpdateConnectedState(String msg);
         public delegate void UpdateMsgReceivedLabel(int hideorshow);
 
         //创建一个委托变量
-        public UpdatePrinting UpdatePrintingDelegate { get; private set; }
+        public UpdatePrinting UpdatePrintingDelegate{ get; private set; }
         public UpdatePrintingTextLabel UpdatePrintingTextLabelDelegate { get; private set; }
 
         private UpdateServerState UpdateServerStateDelegate;
@@ -36,7 +36,7 @@ namespace MyWebSocketServer
 
         private Boolean isRedLightStart = false;
         private Boolean isMarking = false;
-        private Thread consumer;
+        //private Thread consumer;
         private Thread serverThread;
         public DataTable dt;
         private WebSocketServer server;
@@ -67,9 +67,14 @@ namespace MyWebSocketServer
             var ret = MarkJcz.InitLaser(this.Handle,true);
             //var ret = MarkJcz.InitLaser();
             Console.WriteLine(ret);
-            if (ret) {
+            if (ret)
+            {
                 //初始化成功
-               // MarkJcz.ShowDevCfgForm();
+                // MarkJcz.ShowDevCfgForm();
+            }
+            else
+            {
+                MessageBox.Show("激光器初始化失败");return;
             }
 
             //实例化委托
@@ -106,20 +111,11 @@ namespace MyWebSocketServer
                     Console.WriteLine("收到新的消息..." + message);
                     if (msgJson != null&& msgJson.msgs.Count>0)
                     {
-                            lock (this.waiting_dataGridView)
-                            {
-                                foreach (var item in msgJson.msgs)
-                                {
-                                    Console.WriteLine("添加数据到DT中的服务线程..." + Thread.CurrentThread.GetHashCode());
-                                    DataRow dr = dt.NewRow();
-                                    dr["编码"] = item.PrintCode;
-                                    dr["入队时间"] = DateTime.Now.ToLocalTime().ToString();
-                                    dr["状态"] = "排队等待";
-                                    dt.Rows.Add(dr);
-                                    Monitor.PulseAll(this.waiting_dataGridView);
-                                    this.waiting_dataGridView.BeginInvoke(UpdatePrintingDelegate);
-                                    sock.Send(item.PrintCode + "已加入到打印队列");
-                                }
+                        lock (this.waiting_dataGridView)
+                        {
+                            //因为是在自己的线程里面调用,所以关于datagridview的操作都必须放到委托里面,否则一出滚动条就卡死
+                            this.waiting_dataGridView.BeginInvoke(UpdatePrintingDelegate,msgJson,sock);
+                            Monitor.PulseAll(this.waiting_dataGridView);
                         }
 
                     }
@@ -195,7 +191,7 @@ namespace MyWebSocketServer
                         MessageBox.Show(MarkJcz.GetLastError());
                         return;
                     }  
-                    this.waiting_dataGridView.BeginInvoke(UpdatePrintingDelegate);//刷新正在排队等待打印的字符串的列表
+                    this.waiting_dataGridView.BeginInvoke(UpdatePrintingDelegate,null,null);//刷新正在排队等待打印的字符串的列表
                 }
                 
                 //Monitor.PulseAll(this.waiting_dataGridView);
@@ -208,8 +204,8 @@ namespace MyWebSocketServer
             }
         }
 
-            //有新打印数据,加入到datagrid中等待
-            public void AddUpdatePrintingMethod()
+        //有新打印数据,加入到datagrid中等待
+        public void AddUpdatePrintingMethod(MsgList msgJson,WebSocketSession sock)
         {
 
             /*
@@ -225,10 +221,35 @@ namespace MyWebSocketServer
                 this.waiting_dataGridView.Rows.Add(dgvr); 
                 */
 
-                //waiting_dataGridView.DataSource = dt;
+            //waiting_dataGridView.DataSource = dt;
+
+            if (msgJson!=null&&sock!=null)
+            {
+                foreach (var item in msgJson.msgs)
+                {
+                    Console.WriteLine("添加数据到DT中的服务线程..." + Thread.CurrentThread.GetHashCode());
+                    DataRow dr = dt.NewRow();
+                    dr["编码"] = item.PrintCode;
+                    dr["入队时间"] = DateTime.Now.ToLocalTime().ToString();
+                    dr["状态"] = "排队等待";
+                    dt.Rows.Add(dr);
+                    sock.Send(item.PrintCode + "已加入到打印队列");
+                }
+            }
+            //如果printing_text_label上内容为空,把第一行rows[0]放到里面打码
+            string markNum = dt.Rows.Count > 0 ? dt.Rows[0]["编码"] as string : "";
+            if (printing_text_label.Text == null || printing_text_label.Text.Trim().Length == 0 || printing_text_label.Text != markNum)
+            {
                 if (dt.Rows.Count > 0)
                 {
-                    waiting_dataGridView.ScrollBars = ScrollBars.Both;
+                    dt.Rows[0]["状态"] = "正在标刻";
+                }
+                this.printing_text_label.BeginInvoke(UpdatePrintingTextLabelDelegate, markNum);//label上显示正在打码的数据
+            }
+
+            if (dt.Rows.Count > 3)
+                {
+                    waiting_dataGridView.ScrollBars = ScrollBars.Vertical;
                 }
                 else
                 {
@@ -236,16 +257,7 @@ namespace MyWebSocketServer
                 }
                 waiting_dataGridView.Refresh();
                 waiting_dataGridView.Update();
-            //如果printing_text_label上内容为空,把第一行rows[0]放到里面打码
-                string markNum = dt.Rows.Count>0?dt.Rows[0]["编码"] as string:"";
-                if (printing_text_label.Text==null|| printing_text_label.Text.Trim().Length==0|| printing_text_label.Text!= markNum)
-                {
-                    if (dt.Rows.Count > 0)
-                    {
-                        dt.Rows[0]["状态"] = "正在标刻";
-                    }                    
-                    this.printing_text_label.BeginInvoke(UpdatePrintingTextLabelDelegate, markNum);//label上显示正在打码的数据
-                }
+                
 
             //Console.WriteLine(Thread.CurrentThread.GetHashCode() + "---" + "刷新到UI grid中");       
         }
@@ -438,7 +450,7 @@ namespace MyWebSocketServer
             int curIndex = waiting_dataGridView.CurrentRow.Index;
             this.dt.Rows.RemoveAt(curIndex);
             //更新状态
-            this.waiting_dataGridView.BeginInvoke(UpdatePrintingDelegate);
+            this.waiting_dataGridView.BeginInvoke(UpdatePrintingDelegate,null,null);
         }
     }
 }

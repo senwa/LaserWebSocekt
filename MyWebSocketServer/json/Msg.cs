@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MyWebSocketServer.json
 {
-    class Msg
+    public class Msg
     {
         /// <summary>
         /// 编号
