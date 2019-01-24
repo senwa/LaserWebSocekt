@@ -64,7 +64,7 @@ namespace MyWebSocketServer
             waiting_dataGridView.Columns[2].SortMode = DataGridViewColumnSortMode.NotSortable;
 
             //注意第二个参数,现场实际运行时一定要改成false
-            var ret = MarkJcz.InitLaser(this.Handle,true);
+            var ret = MarkJcz.InitLaser(this.Handle,false);
             //var ret = MarkJcz.InitLaser();
             Console.WriteLine(ret);
             if (ret)
@@ -74,7 +74,8 @@ namespace MyWebSocketServer
             }
             else
             {
-                MessageBox.Show("激光器初始化失败");return;
+                MessageBox.Show("激光器初始化失败");
+                System.Environment.Exit(0);
             }
 
             //实例化委托
@@ -282,9 +283,11 @@ namespace MyWebSocketServer
 
             //consumer.Abort();
             //consumer = null;
-            server.Stop();
-            server.Dispose();
-
+            if (server!=null)
+            {
+                server.Stop();
+                server.Dispose();
+            }
             
             if (serverThread!=null) {
                 serverThread.Abort();
